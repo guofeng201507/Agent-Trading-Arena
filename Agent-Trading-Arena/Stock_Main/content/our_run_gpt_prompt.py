@@ -1,4 +1,4 @@
-from content.gpt_structure import generate_prompt, ChatGPT_safe_generate_response
+from content.gpt_structure import generate_prompt, llm_safe_generate_response_structured
 import ast
 import re
 import random
@@ -190,7 +190,7 @@ def update_strategy(virtual_date, persona, w_s, suggestion, save_path=None):
     )
     special_instruction = "The updated strategy should be concrete and more detailed in one sentence, rather than general guidance."
     fail_safe = get_fail_safe()
-    output = ChatGPT_safe_generate_response(
+    output = llm_safe_generate_response_structured(
         prompt,
         example_output,
         special_instruction,
@@ -283,7 +283,7 @@ def long_reflect(virtual_date, persona, save_path=None):
     )
     special_instruction = ""
     fail_safe = get_fail_safe()
-    output = ChatGPT_safe_generate_response(
+    output = llm_safe_generate_response_structured(
         prompt,
         example_output,
         special_instruction,
@@ -341,7 +341,7 @@ def pre_reflect(virtual_date, persona, save_path=None):
     )
     special_instruction = ""
     fail_safe = get_fail_safe()
-    output = ChatGPT_safe_generate_response(
+    output = llm_safe_generate_response_structured(
         prompt,
         example_output,
         special_instruction,
@@ -395,7 +395,7 @@ def run_gpt_generate_gossip(virtual_date, persona, save_path=None):
     )
     special_instruction = ""
     fail_safe = get_fail_safe()
-    output = ChatGPT_safe_generate_response(
+    output = llm_safe_generate_response_structured(
         prompt,
         example_output,
         special_instruction,
@@ -467,7 +467,7 @@ def analysis(virtual_date, persona, stocks_list, market_index, analysis_num, gos
     )
     special_instruction = """Each analysis result should be started with "-", and ended with line break."""
     fail_safe = get_fail_safe()
-    output = ChatGPT_safe_generate_response(
+    output = llm_safe_generate_response_structured(
         prompt,
         example_output,
         special_instruction,
@@ -533,7 +533,7 @@ def run_gpt_prompt_choose_buy_stock(virtual_date, persona, stocks_list, analysis
 
     special_instruction = ""
     fail_safe = get_fail_safe()
-    output = ChatGPT_safe_generate_response(
+    output = llm_safe_generate_response_structured(
         prompt,
         example_output,
         special_instruction,
@@ -603,7 +603,7 @@ def run_gpt_prompt_choose_sell_stock(
 
     special_instruction = ""
     fail_safe = get_fail_safe()
-    output = ChatGPT_safe_generate_response(
+    output = llm_safe_generate_response_structured(
         prompt,
         example_output,
         special_instruction,

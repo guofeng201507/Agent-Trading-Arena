@@ -22,7 +22,8 @@ def temp_sleep(seconds=1):
     time.sleep(seconds)
 
 
-def ChatGPT_single_request(prompt):
+def llm_single_request(prompt):
+    """Make a single LLM request for the given prompt."""
     temp_sleep()
     if llm_provider == 'openai':
         client = OpenAI(api_key=openai_api_key)
@@ -40,21 +41,12 @@ def ChatGPT_single_request(prompt):
     return completion.choices[0].message.content
 
 # ============================================================================
-# #####################[SECTION 1: CHATGPT-3 STRUCTURE] ######################
+# ########################[SECTION 1: LLM API STRUCTURE] ######################
 # ============================================================================
 
 
-def GPT4_request(prompt):
-    """  Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
-  server and returns the response. 
-  ARGS:
-    prompt: a str prompt
-    gpt_parameter: a python dictionary with the keys indicating the names of  
-                   the parameter and the values indicating the parameter 
-                   values.   
-  RETURNS: 
-    a str of GPT-3's response. 
-  """
+def llm_request(prompt):
+    """Make a basic LLM request for the given prompt."""
     temp_sleep()
     try:
         if llm_provider == 'openai':
@@ -77,17 +69,8 @@ def GPT4_request(prompt):
 
 
 #@timeout(150)
-def ChatGPT_request(prompt):
-    """  Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
-  server and returns the response. 
-  ARGS:
-    prompt: a str prompt
-    gpt_parameter: a python dictionary with the keys indicating the names of  
-                   the parameter and the values indicating the parameter 
-                   values.   
-  RETURNS: 
-    a str of GPT-3's response. 
-  """
+def llm_chat_request(prompt):
+    """Make an LLM chat request for the given prompt."""
     try:
         if llm_provider == 'openai':
             client = OpenAI(api_key=openai_api_key)
@@ -107,7 +90,8 @@ def ChatGPT_request(prompt):
         print(f"LLM ERROR: {type(e).__name__} - {str(e)}")
         return "LLM ERROR"
 
-def GPT4o_images_request(prompt, image_url1, image_url2, image_url3 ):#
+def llm_multimodal_request(prompt, image_url1, image_url2, image_url3):
+    """Make an LLM request with multimodal support (text + images)."""
     try:
         chat_completion = openai.chat.completions.create(
               model="gpt-4o",
@@ -132,12 +116,13 @@ def GPT4o_images_request(prompt, image_url1, image_url2, image_url3 ):#
 
 
 #@timeout(50)
-def send_request(prompt):
-    curr_gpt_response = ChatGPT_request(prompt).strip()
-    return curr_gpt_response
+def send_llm_request(prompt):
+    """Send an LLM request and return the response."""
+    curr_llm_response = llm_chat_request(prompt).strip()
+    return curr_llm_response
 
 
-def GPT4_safe_generate_response(
+def llm_safe_generate_response(
     prompt,
     example_output,
     special_instruction,
@@ -160,28 +145,28 @@ def GPT4_safe_generate_response(
 
     for i in range(repeat):
         try:
-            curr_gpt_response = GPT4_request(prompt).strip()
+            curr_llm_response = llm_request(prompt).strip()
 
-            end_index = curr_gpt_response.rfind("}") + 1
-            curr_gpt_response = curr_gpt_response[:end_index]
-            curr_gpt_response = json.loads(curr_gpt_response)["output"]
+            end_index = curr_llm_response.rfind("}") + 1
+            curr_llm_response = curr_llm_response[:end_index]
+            curr_llm_response = json.loads(curr_llm_response)["output"]
 
-            if func_validate(curr_gpt_response, prompt=prompt):
-                return func_clean_up(curr_gpt_response, prompt=prompt)
+            if func_validate(curr_llm_response, prompt=prompt):
+                return func_clean_up(curr_llm_response, prompt=prompt)
 
             if verbose:
-                print("---- repeat count: \n", i, curr_gpt_response)
-                print(curr_gpt_response)
+                print("---- repeat count: \n", i, curr_llm_response)
+                print(curr_llm_response)
                 print("~~~~")
 
         except Exception as e:
-            print(f"GPT connection error: {type(e).__name__} - {str(e)}")
+            print(f"LLM connection error: {type(e).__name__} - {str(e)}")
             pass
 
     return False
 
 
-def ChatGPT_safe_generate_response(
+def llm_safe_generate_response_structured(
     prompt,
     example_output,
     special_instruction,
@@ -201,7 +186,7 @@ def ChatGPT_safe_generate_response(
 
 
     if verbose:
-        print("CHAT GPT PROMPT")
+        print("LLM PROMPT")
         print(prompt)
     # eventlet.monkey_patch()
 
@@ -209,38 +194,38 @@ def ChatGPT_safe_generate_response(
         try:
             #url1=trans_url("plot_stock.jpg")
             #url1=trans_url("plot_stock2.jpg")
-            #curr_gpt_response =  GPT4o_3images_request(prompt, url1, url2, url3 ).strip()
-            curr_gpt_response = ChatGPT_request(prompt).strip()#.replace("\n","")
-            curr_gpt_response = re.sub(r'\s{3,}', '\n', curr_gpt_response).replace("\n","\\n")
-            # curr_gpt_response = send_request(prompt)
-            #print("curr_gpt_response",curr_gpt_response)
-            end_index = curr_gpt_response.rfind("}") + 1
-            curr_gpt_response = curr_gpt_response[:end_index]
-            curr_gpt_response = json.loads(curr_gpt_response)["output"]
+            #curr_llm_response =  llm_multimodal_request(prompt, url1, url2, url3 ).strip()
+            curr_llm_response = llm_chat_request(prompt).strip()#.replace("\n","")
+            curr_llm_response = re.sub(r'\s{3,}', '\n', curr_llm_response).replace("\n","\\n")
+            # curr_llm_response = send_llm_request(prompt)
+            #print("curr_llm_response",curr_llm_response)
+            end_index = curr_llm_response.rfind("}") + 1
+            curr_llm_response = curr_llm_response[:end_index]
+            curr_llm_response = json.loads(curr_llm_response)["output"]
 
 
             if verbose:
-                print("---GPT Response---")
-                print(curr_gpt_response)
-                print("---end of GPT Response---")
+                print("---LLM Response---")
+                print(curr_llm_response)
+                print("---end of LLM Response---")
 
-            print(func_validate(curr_gpt_response, prompt=prompt))
-            if func_validate(curr_gpt_response, prompt=prompt):
-                return func_clean_up(curr_gpt_response, prompt=prompt)
+            print(func_validate(curr_llm_response, prompt=prompt))
+            if func_validate(curr_llm_response, prompt=prompt):
+                return func_clean_up(curr_llm_response, prompt=prompt)
 
             if verbose:
-                print("---- repeat count: \n", i, curr_gpt_response)
-                print(curr_gpt_response)
+                print("---- repeat count: \n", i, curr_llm_response)
+                print(curr_llm_response)
                 # temp_sleep(5)
         except Exception as e:
-            print(f"GPT connection error: {type(e).__name__} - {str(e)}")
+            print(f"LLM connection error: {type(e).__name__} - {str(e)}")
             pass
 
     #return False
 
 
 
-def ChatGPT_safe_generate_response_OLD(
+def llm_safe_generate_response_legacy(
     prompt,
     repeat=3,
     fail_safe_response="error",
@@ -249,55 +234,45 @@ def ChatGPT_safe_generate_response_OLD(
     verbose=False,
 ):
     if verbose:
-        print("CHAT GPT PROMPT")
+        print("LLM PROMPT")
         print(prompt)
 
     for i in range(repeat):
         try:
-            curr_gpt_response = ChatGPT_request(prompt).strip()
-            if func_validate(curr_gpt_response, prompt=prompt):
-                return func_clean_up(curr_gpt_response, prompt=prompt)
+            curr_llm_response = llm_chat_request(prompt).strip()
+            if func_validate(curr_llm_response, prompt=prompt):
+                return func_clean_up(curr_llm_response, prompt=prompt)
             if verbose:
                 print(f"---- repeat count: {i}")
-                print(curr_gpt_response)
+                print(curr_llm_response)
                 print("~~~~")
 
         except Exception as e:
-            print(f"GPT error on attempt {i+1}/{repeat}: {type(e).__name__} - {str(e)}")
+            print(f"LLM error on attempt {i+1}/{repeat}: {type(e).__name__} - {str(e)}")
             pass
     print("FAIL SAFE TRIGGERED")
     return fail_safe_response
 
 
 # ============================================================================
-# ###################[SECTION 2: ORIGINAL GPT-3 STRUCTURE] ###################
+# #########################[SECTION 2: LEGACY STRUCTURE] #####################
 # ============================================================================
 
 
-def GPT_request(prompt, gpt_parameter):
-    """
-  Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
-  server and returns the response. 
-  ARGS:
-    prompt: a str prompt
-    gpt_parameter: a python dictionary with the keys indicating the names of  
-                   the parameter and the values indicating the parameter 
-                   values.   
-  RETURNS: 
-    a str of GPT-3's response. 
-  """
+def llm_completion_request(prompt, llm_parameter):
+    """Make an LLM completion request (legacy format)."""
     temp_sleep()
     try:
         response = openai.Completion.create(
-            model=gpt_parameter["engine"],
+            model=llm_parameter["engine"],
             prompt=prompt,
-            temperature=gpt_parameter["temperature"],
-            max_tokens=gpt_parameter["max_tokens"],
-            top_p=gpt_parameter["top_p"],
-            frequency_penalty=gpt_parameter["frequency_penalty"],
-            presence_penalty=gpt_parameter["presence_penalty"],
-            stream=gpt_parameter["stream"],
-            stop=gpt_parameter["stop"],
+            temperature=llm_parameter["temperature"],
+            max_tokens=llm_parameter["max_tokens"],
+            top_p=llm_parameter["top_p"],
+            frequency_penalty=llm_parameter["frequency_penalty"],
+            presence_penalty=llm_parameter["presence_penalty"],
+            stream=llm_parameter["stream"],
+            stop=llm_parameter["stop"],
         )
         return response.choices[0].text
     except:
@@ -333,7 +308,7 @@ def generate_prompt(curr_input, prompt_lib_file):
     return prompt.strip()
 
 
-def safe_generate_response(
+def safe_llm_generate_response(
     prompt,
     gpt_parameter,
     repeat=5,
@@ -346,12 +321,12 @@ def safe_generate_response(
         print(prompt)
 
     for i in range(repeat):
-        curr_gpt_response = GPT_request(prompt, gpt_parameter)
-        if func_validate(curr_gpt_response, prompt=prompt):
-            return func_clean_up(curr_gpt_response, prompt=prompt)
+        curr_llm_response = llm_completion_request(prompt, llm_parameter)
+        if func_validate(curr_llm_response, prompt=prompt):
+            return func_clean_up(curr_llm_response, prompt=prompt)
         if verbose:
-            print("---- repeat count: ", i, curr_gpt_response)
-            print(curr_gpt_response)
+            print("---- repeat count: ", i, curr_llm_response)
+            print(curr_llm_response)
             print("~~~~")
     return fail_safe_response
 
