@@ -10,7 +10,12 @@ from pathlib import Path
 from openai import OpenAI
 import re
 
-openai.api_key = openai_api_key
+# Configure API based on selected provider
+if llm_provider == 'openai':
+    openai.api_key = openai_api_key
+elif llm_provider == 'deepseek':
+    from openai import OpenAI  # DeepSeek uses OpenAI-compatible API
+    openai.api_key = deepseek_api_key
 
 
 def temp_sleep(seconds=1):
@@ -19,12 +24,19 @@ def temp_sleep(seconds=1):
 
 def ChatGPT_single_request(prompt):
     temp_sleep()
-    client = OpenAI(
-        api_key=openai_api_key
-        )
+    if llm_provider == 'openai':
+        client = OpenAI(api_key=openai_api_key)
+        model = openai_model
+    elif llm_provider == 'deepseek':
+        client = OpenAI(api_key=deepseek_api_key, base_url=deepseek_base_url)
+        model = deepseek_model
+    else:
+        raise ValueError(f"Unsupported LLM provider: {llm_provider}")
+    
     completion = client.chat.completions.create(
-            model=openai_model,messages=[{"role": "user", "content": prompt}]
-)
+        model=model,
+        messages=[{"role": "user", "content": prompt}]
+    )
     return completion.choices[0].message.content
 
 # ============================================================================
@@ -33,8 +45,7 @@ def ChatGPT_single_request(prompt):
 
 
 def GPT4_request(prompt):
-    """
-  Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
+    """  Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
   server and returns the response. 
   ARGS:
     prompt: a str prompt
@@ -46,24 +57,28 @@ def GPT4_request(prompt):
   """
     temp_sleep()
     try:
-       
-        client = OpenAI(
-            api_key=openai_api_key
-            )
+        if llm_provider == 'openai':
+            client = OpenAI(api_key=openai_api_key)
+            model = openai_model
+        elif llm_provider == 'deepseek':
+            client = OpenAI(api_key=deepseek_api_key, base_url=deepseek_base_url)
+            model = deepseek_model
+        else:
+            raise ValueError(f"Unsupported LLM provider: {llm_provider}")
+        
         completion = client.chat.completions.create(
-            model=openai_model,messages=[{"role": "user", "content": prompt}]
-)
-       # print(completion)
+            model=model,
+            messages=[{"role": "user", "content": prompt}]
+        )
         return completion.choices[0].message.content
     except Exception as e:
-        print(f"ChatGPT ERROR: {type(e).__name__} - {str(e)}")
-        return "ChatGPT ERROR"
+        print(f"LLM ERROR: {type(e).__name__} - {str(e)}")
+        return "LLM ERROR"
 
 
 #@timeout(150)
 def ChatGPT_request(prompt):
-    """
-  Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
+    """  Given a prompt and a dictionary of GPT parameters, make a request to OpenAI
   server and returns the response. 
   ARGS:
     prompt: a str prompt
@@ -74,21 +89,23 @@ def ChatGPT_request(prompt):
     a str of GPT-3's response. 
   """
     try:
-       # completion = openai.ChatCompletion.create(
-        #    model="gpt-3.5-turbo", messages=[{"role": "user", "content": prompt}]
-        #)
-        client = OpenAI(
-            api_key=openai_api_key
-            )
+        if llm_provider == 'openai':
+            client = OpenAI(api_key=openai_api_key)
+            model = openai_model
+        elif llm_provider == 'deepseek':
+            client = OpenAI(api_key=deepseek_api_key, base_url=deepseek_base_url)
+            model = deepseek_model
+        else:
+            raise ValueError(f"Unsupported LLM provider: {llm_provider}")
+        
         completion = client.chat.completions.create(
-            model=openai_model,messages=[{"role": "user", "content": prompt}]
-)
-       # print(completion)
+            model=model,
+            messages=[{"role": "user", "content": prompt}]
+        )
         return completion.choices[0].message.content
-
     except Exception as e:
-        print(f"ChatGPT ERROR: {type(e).__name__} - {str(e)}")
-        return "ChatGPT ERROR"
+        print(f"LLM ERROR: {type(e).__name__} - {str(e)}")
+        return "LLM ERROR"
 
 def GPT4o_images_request(prompt, image_url1, image_url2, image_url3 ):#
     try:
