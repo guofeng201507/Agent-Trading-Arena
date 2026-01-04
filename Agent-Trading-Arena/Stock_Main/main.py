@@ -4,6 +4,7 @@ import os.path as osp
 import random
 import time
 import json
+from datetime import datetime
 
 from database_utils import query_all_stocks, Database_operate
 from Person import Person, Broker
@@ -20,7 +21,7 @@ def get_args():
     parser.add_argument('--No_Days', type=int, default=3, help='number of trading days')
     parser.add_argument('--Num_Person', type=int, default=9, help='number of agents')
     parser.add_argument('--Num_Stock', type=int, default=3, help='number of stocks')
-    parser.add_argument('--SAVE_NAME', type=str, default='sim01', help='name of save folder')
+    parser.add_argument('--SAVE_NAME', type=str, default=None, help='name of save folder (default: timestamp)')
     parser.add_argument('--STOCK_NAMES', type=str, nargs='+', default=["0", "1", "2", "3", "4"],
                     help='list of stock names (e.g., 0 1 2 3 4)')
 
@@ -36,6 +37,11 @@ def get_args():
     parser.add_argument('--gossip_num_max', type=int, default=3, help='maximum number of gossip entries per round')
 
     args = parser.parse_args()
+
+    # Generate timestamp-based folder name if not specified
+    if args.SAVE_NAME is None:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        args.SAVE_NAME = f"run_{timestamp}"
 
     # Derived paths
     args.Save_Path = osp.join("./save", args.SAVE_NAME)
