@@ -97,7 +97,7 @@ def overall_test(args):
             broker.ipo(virtual_date)
 
         market_index.update_market_index(virtual_date)
-        generate_gossip(virtual_date, persons, stocks)
+        generate_gossip(virtual_date, persons, stocks, args)
 
         for iter in range(args.Iterations_Daily):
             ops = stock_ops(virtual_date, persons, stocks, market_index, iter, args)
@@ -115,13 +115,16 @@ def overall_test(args):
                 if each_person.person_id >= 0:
                     each_person.end_of_iteration(virtual_date, iter)
 
-            reflection(virtual_date, persons, stocks, market_index, iter)
+            reflection(virtual_date, persons, stocks, market_index, iter, args)
             save_all(virtual_date, iter, stocks, market_index, persons, market, args)
 
         # End of the trading day
         market.end_of_day(virtual_date)
         for each_person in persons:
-            each_person.end_of_day(virtual_date, args)
+            if each_person.person_id >= 0:
+                each_person.end_of_day(virtual_date, args)
+            else:
+                each_person.end_of_day(virtual_date)
         for each_stock in stocks:
             each_stock.end_of_day(virtual_date)
         market_index.end_of_day(virtual_date)

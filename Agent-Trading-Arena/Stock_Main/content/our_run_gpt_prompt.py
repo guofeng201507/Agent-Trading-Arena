@@ -3,6 +3,7 @@ import ast
 import re
 import random
 import numpy as np
+import os
 
 
 def integrate_gossip(virtual_date, persona, gossip_num_max):
@@ -147,7 +148,7 @@ def integrate_reflect_info(virtual_date, persona):
     return pre_reflect_info
 
 
-def update_strategy(virtual_date, persona, w_s, suggestion):
+def update_strategy(virtual_date, persona, w_s, suggestion, save_path=None):
     def create_prompt_input(virtual_date, persona, w_s, suggestion):
         reflect_info = integrate_reflect_info(virtual_date, persona)
         prompt_input = [
@@ -178,8 +179,11 @@ def update_strategy(virtual_date, persona, w_s, suggestion):
     prompt_input = create_prompt_input(virtual_date, persona, w_s, suggestion)
     prompt = generate_prompt(prompt_input, prompt_template)
 
-    with open("relect.txt", "w") as file:
-        file.write(prompt)
+    if save_path:
+        debug_dir = os.path.join(save_path, "debug_prompts")
+        os.makedirs(debug_dir, exist_ok=True)
+        with open(os.path.join(debug_dir, f"day{virtual_date}_strategy_update_prompt.txt"), "w") as file:
+            file.write(prompt)
 
     example_output = (
         "New investment strategy: [New investment strategy]"
@@ -198,8 +202,11 @@ def update_strategy(virtual_date, persona, w_s, suggestion):
     )
     #print("output:",output)
     if output is not False:
-        with open("relect_result.txt", "w") as file:
-            file.write(output)
+        if save_path:
+            debug_dir = os.path.join(save_path, "debug_prompts")
+            os.makedirs(debug_dir, exist_ok=True)
+            with open(os.path.join(debug_dir, f"day{virtual_date}_strategy_update_result.txt"), "w") as file:
+                file.write(output)
         #print(output)
         return output
 
@@ -241,7 +248,7 @@ def integrate_long_reflect_info(virtual_date, persona):
                 pre_reflect_info += pre_reflect_info_template
     return pre_reflect_info
 
-def long_reflect(virtual_date, persona):
+def long_reflect(virtual_date, persona, save_path=None):
     def create_prompt_input(virtual_date, persona):
         long_reflect_info = integrate_long_reflect_info(virtual_date, persona)
         prompt_input = [
@@ -265,8 +272,11 @@ def long_reflect(virtual_date, persona):
     prompt_input = create_prompt_input(virtual_date, persona)
     prompt = generate_prompt(prompt_input, prompt_template)
 
-    with open("pre_reflect.txt", "w") as file:
-        file.write(prompt)
+    if save_path:
+        debug_dir = os.path.join(save_path, "debug_prompts")
+        os.makedirs(debug_dir, exist_ok=True)
+        with open(os.path.join(debug_dir, f"day{virtual_date}_long_reflection_prompt.txt"), "w") as file:
+            file.write(prompt)
 
     example_output = (
         "Suggestions for a new investment strategy: [Suggestions for a new investment strategy]."
@@ -284,12 +294,15 @@ def long_reflect(virtual_date, persona):
         True,
     )
     if output is not False:
-        with open("long_pre_reflect_suggestion_result.txt", "w") as file:
-            file.write(output)
+        if save_path:
+            debug_dir = os.path.join(save_path, "debug_prompts")
+            os.makedirs(debug_dir, exist_ok=True)
+            with open(os.path.join(debug_dir, f"day{virtual_date}_long_reflection_result.txt"), "w") as file:
+                file.write(output)
         # print(output)
         return output
 
-def pre_reflect(virtual_date, persona):
+def pre_reflect(virtual_date, persona, save_path=None):
     def create_prompt_input(virtual_date, persona):
         pre_reflect_info = integrate_reflect_info(virtual_date, persona)
         prompt_input = [
@@ -317,8 +330,11 @@ def pre_reflect(virtual_date, persona):
     prompt_input = create_prompt_input(virtual_date, persona)
     prompt = generate_prompt(prompt_input, prompt_template)
 
-    with open("pre_reflect.txt", "w") as file:
-        file.write(prompt)
+    if save_path:
+        debug_dir = os.path.join(save_path, "debug_prompts")
+        os.makedirs(debug_dir, exist_ok=True)
+        with open(os.path.join(debug_dir, f"day{virtual_date}_short_reflection_prompt.txt"), "w") as file:
+            file.write(prompt)
 
     example_output = (
         "Weakness: [Weakness]. Strength: [Strength]"
@@ -336,13 +352,16 @@ def pre_reflect(virtual_date, persona):
         True,
     )
     if output is not False:
-        with open("pre_reflect_result.txt", "w") as file:
-            file.write(output)
+        if save_path:
+            debug_dir = os.path.join(save_path, "debug_prompts")
+            os.makedirs(debug_dir, exist_ok=True)
+            with open(os.path.join(debug_dir, f"day{virtual_date}_short_reflection_result.txt"), "w") as file:
+                file.write(output)
         # print(output)
         return output
 
 
-def run_gpt_generate_gossip(virtual_date, persona):
+def run_gpt_generate_gossip(virtual_date, persona, save_path=None):
     def create_prompt_input(virtual_date, persona):
         gossip_input = integrate_gossip_info(virtual_date, persona)
         prompt_input = [
@@ -366,8 +385,11 @@ def run_gpt_generate_gossip(virtual_date, persona):
     prompt_input = create_prompt_input(virtual_date, persona)
     prompt = generate_prompt(prompt_input, prompt_template)
 
-    with open("gossip.txt", "w") as file:
-        file.write(prompt)
+    if save_path:
+        debug_dir = os.path.join(save_path, "debug_prompts")
+        os.makedirs(debug_dir, exist_ok=True)
+        with open(os.path.join(debug_dir, f"day{virtual_date}_gossip_generation_prompt.txt"), "w") as file:
+            file.write(prompt)
 
     example_output = (
     )
@@ -389,7 +411,7 @@ def run_gpt_generate_gossip(virtual_date, persona):
         return output
 
 
-def analysis(virtual_date, persona, stocks_list, market_index, analysis_num, gossip_num_max):
+def analysis(virtual_date, persona, stocks_list, market_index, analysis_num, gossip_num_max, save_path=None):
     def create_prompt_input(virtual_date, persona, stocks_list, market_index, analysis_num, gossip_num_max):
         gossip = integrate_gossip(virtual_date, persona, gossip_num_max)
         market_index = "Current market index change: {:.2f}%".format(
@@ -434,8 +456,11 @@ def analysis(virtual_date, persona, stocks_list, market_index, analysis_num, gos
     prompt = generate_prompt(prompt_input, prompt_template)
 
 
-    with open("analysis.txt", "w") as file:
-        file.write(prompt)
+    if save_path:
+        debug_dir = os.path.join(save_path, "debug_prompts")
+        os.makedirs(debug_dir, exist_ok=True)
+        with open(os.path.join(debug_dir, f"day{virtual_date}_iter{persona.person_id}_market_analysis_prompt.txt"), "w") as file:
+            file.write(prompt)
 
     example_output = (
         "The analysis results: [analysis results]"

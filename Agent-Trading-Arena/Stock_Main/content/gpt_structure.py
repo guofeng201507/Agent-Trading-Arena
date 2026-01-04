@@ -23,7 +23,7 @@ def ChatGPT_single_request(prompt):
         api_key=openai_api_key
         )
     completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",messages=[{"role": "user", "content": prompt}]
+            model=openai_model,messages=[{"role": "user", "content": prompt}]
 )
     return completion.choices[0].message.content
 
@@ -51,12 +51,12 @@ def GPT4_request(prompt):
             api_key=openai_api_key
             )
         completion = client.chat.completions.create(
-            model="gpt-4",messages=[{"role": "user", "content": prompt}]
+            model=openai_model,messages=[{"role": "user", "content": prompt}]
 )
        # print(completion)
         return completion.choices[0].message.content
-    except:
-        print("ChatGPT ERROR")
+    except Exception as e:
+        print(f"ChatGPT ERROR: {type(e).__name__} - {str(e)}")
         return "ChatGPT ERROR"
 
 
@@ -81,13 +81,13 @@ def ChatGPT_request(prompt):
             api_key=openai_api_key
             )
         completion = client.chat.completions.create(
-            model="gpt-3.5-turbo",messages=[{"role": "user", "content": prompt}]
+            model=openai_model,messages=[{"role": "user", "content": prompt}]
 )
        # print(completion)
         return completion.choices[0].message.content
 
-    except:
-        print("ChatGPT ERROR!")
+    except Exception as e:
+        print(f"ChatGPT ERROR: {type(e).__name__} - {str(e)}")
         return "ChatGPT ERROR"
 
 def GPT4o_images_request(prompt, image_url1, image_url2, image_url3 ):#
@@ -109,8 +109,8 @@ def GPT4o_images_request(prompt, image_url1, image_url2, image_url3 ):#
             )
         return chat_completion.choices[0].message.content
 
-    except:
-        print("ChatGPT ERROR")
+    except Exception as e:
+        print(f"ChatGPT ERROR: {type(e).__name__} - {str(e)}")
         return "ChatGPT ERROR"
 
 
@@ -143,8 +143,7 @@ def GPT4_safe_generate_response(
 
     for i in range(repeat):
         try:
-            with eventlet.Timeout(1):
-                curr_gpt_response = GPT4_request(prompt).strip()
+            curr_gpt_response = GPT4_request(prompt).strip()
 
             end_index = curr_gpt_response.rfind("}") + 1
             curr_gpt_response = curr_gpt_response[:end_index]
@@ -158,8 +157,8 @@ def GPT4_safe_generate_response(
                 print(curr_gpt_response)
                 print("~~~~")
 
-        except Exception:
-            print("GPT connection error, {}".format(Exception))
+        except Exception as e:
+            print(f"GPT connection error: {type(e).__name__} - {str(e)}")
             pass
 
     return False
@@ -216,9 +215,8 @@ def ChatGPT_safe_generate_response(
                 print("---- repeat count: \n", i, curr_gpt_response)
                 print(curr_gpt_response)
                 # temp_sleep(5)
-        # except eventlet.timeout.Timeout:
-        except:
-            print("GPT connection error, {}".format(Exception))
+        except Exception as e:
+            print(f"GPT connection error: {type(e).__name__} - {str(e)}")
             pass
 
     #return False
@@ -247,7 +245,8 @@ def ChatGPT_safe_generate_response_OLD(
                 print(curr_gpt_response)
                 print("~~~~")
 
-        except:
+        except Exception as e:
+            print(f"GPT error on attempt {i+1}/{repeat}: {type(e).__name__} - {str(e)}")
             pass
     print("FAIL SAFE TRIGGERED")
     return fail_safe_response

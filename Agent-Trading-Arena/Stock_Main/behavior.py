@@ -85,7 +85,7 @@ def stock_ops(virtual_date, persons, stocks, market_index, iter, args):
     for p in persons:
         if p.person_id > -1:
             analysis_results, gossip = analysis(
-                virtual_date, p, stocks, market_index, args.analysis_num, args.gossip_num_max
+                virtual_date, p, stocks, market_index, args.analysis_num, args.gossip_num_max, args.Save_Path
             )
            # print(analysis_results,gossip)
             # p.analysis = analysis_results
@@ -171,16 +171,16 @@ def stock_ops(virtual_date, persons, stocks, market_index, iter, args):
     return ops
 
 
-def reflection(virtual_date, persons, stocks, market_index, iter):
+def reflection(virtual_date, persons, stocks, market_index, iter, args):
     for p in persons:
         if p.person_id > -1:
             if p.reflect_frequency == 0:
                 pass
             elif (iter + 1) % p.reflect_frequency == 0:
-                analysis_for_reflect = pre_reflect(virtual_date, p)
+                analysis_for_reflect = pre_reflect(virtual_date, p, args.Save_Path)
                 w_s = extract_analysis_for_reflect(analysis_for_reflect)
-                suggestion_for_reflect=long_reflect(virtual_date,p)
-                new_strategy = update_strategy(virtual_date, p, w_s,suggestion_for_reflect)
+                suggestion_for_reflect=long_reflect(virtual_date,p, args.Save_Path)
+                new_strategy = update_strategy(virtual_date, p, w_s,suggestion_for_reflect, args.Save_Path)
                 new_strategy = extract_strategy(new_strategy)
                 p.principle = new_strategy
                 p.add_memory(
@@ -198,12 +198,12 @@ def reflection(virtual_date, persons, stocks, market_index, iter):
                 pass
 
 
-def generate_gossip(virtual_date, persons, stocks_list):
+def generate_gossip(virtual_date, persons, stocks_list, args):
     # obtain the guidance to update principle
     for p in persons:
         if p.person_id > -1:
             if virtual_date < 1:
                 p.add_gossip(virtual_date, "None")
             else:
-                gossip = run_gpt_generate_gossip(virtual_date, p)
+                gossip = run_gpt_generate_gossip(virtual_date, p, args.Save_Path)
                 p.add_gossip(virtual_date, gossip)

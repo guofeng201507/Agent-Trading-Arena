@@ -585,7 +585,10 @@ class Person:
         )
         self.db.execute_sql(cmd)
         results = self.db.fetchall()
-        p = parse_persons(results)
+        p_list = parse_persons(results)
+        if not p_list or len(p_list) == 0:
+            return []
+        p = p_list[0]  # Get the first person from the list
         return_person = []
         date = p["virtual_date"]
         cash = p["cash"]

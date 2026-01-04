@@ -1,10 +1,13 @@
 #!/bin/bash
 
+# Change to Stock_Main directory
+cd Stock_Main
+
 # 设置环境变量（可选）
 export PYTHONPATH=$(pwd)
 
 # 运行模拟系统
-python Stock_Main/main.py \
+python main.py \
   --Iterations_Daily 5 \
   --No_Days 10 \
   --Num_Person 12 \

@@ -58,15 +58,15 @@ def save_all(virtual_date, iteration, stocks, market_index, persons, market, arg
     for index, each in enumerate(persons):
         each.db = None
         save_name = "PERSON_{}".format(index) # including the broker
-        save_class(save_name, each)
+        save_class(save_name, each, args.Save_Path)
 
     market_index.db = None
     save_name = "Market_index"
-    save_class(save_name, market_index)
+    save_class(save_name, market_index, args.Save_Path)
 
     market.db = None
     save_name = "MARKET"
-    save_class(save_name, market)
+    save_class(save_name, market, args.Save_Path)
 
     for index, each in enumerate(stocks):
         each.db = database
@@ -93,14 +93,14 @@ def load_all(args):
         stocks.append(obj)
 
     save_name = "PERSON_{}".format(args.Num_Person)
-    broker = load_class(save_name)
+    broker = load_class(save_name, args)
     broker.stocks = stocks
     broker.db = database
 
     persons = []
     for index in range(args.Num_Person):
         save_name = "PERSON_{}".format(index)
-        obj = load_class(save_name)
+        obj = load_class(save_name, args)
         obj.db = database
         obj.stocks = stocks
         obj.broker = broker
@@ -109,12 +109,12 @@ def load_all(args):
     persons.append(broker)
 
     save_name = "Market_index"
-    market_index = load_class(save_name)
+    market_index = load_class(save_name, args)
     market_index.db = database
     market_index.stocks = stocks
 
     save_name = "MARKET"
-    market = load_class(save_name)
+    market = load_class(save_name, args)
     market.db = database
     market.broker = broker
     market.stocks = stocks
